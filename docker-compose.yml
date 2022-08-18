@@ -9,14 +9,21 @@ volumes:
 
 services:
   log-producer:
-    build: ./
     environment:
-      - LOG_PATH=/var/log/mylogger
+      - LOGDIR=/var/log/siga/sigaex
     volumes:
-      - log-volume:/var/log/mylogger
-      - ./log4j2.properties:/opt/logger/log4j2.properties
+      - log-volume:/var/log/siga/sigaex
+      - ./test/log/siga/sigaex/user-request-track.log.json:/var/log/siga/sigaex/user-request-track.log.json
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
+    environment:
+      - setup.kibana.host=kibana:5601
+      - LOGDIR=/var/log/siga/sigaex
+    volumes:
+      - log-volume:/var/log/siga/sigaex
+      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
   elasticsearch:
-    image: container-registry.elastic.co/elasticsearch/elasticsearch-oss:7.6.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
     hostname: elasticsearch
     environment:
       - discovery.type=single-node
@@ -27,16 +34,8 @@ services:
       memlock:
         soft: -1
         hard: -1
-  filebeat:
-    image: container-registry.elastic.co/beats/filebeat-oss:7.6.2
-    environment:
-      - setup.kibana.host=kibana:5601
-      - LOG_PATH=/var/log/mylogger
-    volumes:
-      - log-volume:/var/log/mylogger
-      - ./filebeat.yml:/usr/share/filebeat/filebeat.yml
   kibana:
-    image: container-registry.elastic.co/kibana/kibana-oss:7.6.2
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
     ports:
       - "5601:5601"
     environment:

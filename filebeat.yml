@@ -1,15 +1,25 @@
+filebeat.inputs:
+  - type: filestream
+    id: siga-sigaex-user-request-track
+    enabled: true
+    paths:
+      - ${SIGA_LOGS_JSON_PATH}"
+    parsers:
+      - ndjson:
+          keys_under_root: true
+          overwrite_keys: true
+          add_error_key: true
+          expand_keys: true
+
 filebeat.config:
   modules:
     path: ${path.config}/modules.d/*.yml
     reload.enabled: false
 
-filebeat.inputs:
-  - type: log
-    enabled: true
-    paths:
-      - ${LOG_PATH}/*.json
-    fields_under_root: false
-    json.add_error_key: true
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
 
 processors:
   - timestamp:
@@ -17,8 +27,16 @@ processors:
       layouts:
         - UNIX_MS
         - UNIX
-      test:
-        - 1589117576765
+
+setup.template.overwrite: true
+setup.ilm.enabled: false
+setup.ilm.policy_name: siga-sigaex-user-request-track
+setup.ilm.rollover_alias: siga-sigaex-user-request-track-%{[agent.version]}
+
+setup.template.name: siga-sigaex-user-request-track
+setup.template.pattern: siga-sigaex-user-request-track-%{[agent.version]}
 
 output.elasticsearch:
-  hosts: elasticsearch:9200
+  host: elasticsearch
+
+  index: "siga-sigaex-user-request-track"

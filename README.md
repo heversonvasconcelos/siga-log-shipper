@@ -1,22 +1,12 @@
-# HowTo log4j-filebeat
+# Transporte de logs da aplicação Siga para Elasticsearch/Kibana 
 
-HowTo log Java-Applications with log4j 2 to filesystem and import the logs to elasticsearch.
+## Fluxo
 
-- Logging Java-Application with log4j and custom var "counter"
-- Configuration over external log4j2.properties
-- Log JSON to filesystem
-- Read logs with filebeat
-- Push logs to elasticsearch
-- Visualize logs with kibana
+- Entrada: Filebeat lê arquivos de log no formato log.json gerados pelo Log4j contidos no diretório de configuração de input (filestream)
+- Saída: Filebeat envia os registros de log lidos para um servidor Elasticsearch
+- Apresentação: Kibana apresenta os registros de log indexados no Elasticsearch
 
-## Requirements
+## Requisitos
 - Docker
 - Docker Compose
-
-## Use
-1. Run ```docker-compose up -d```. This will build the example-application and start filebeat, elasticsearch.
-1. Call ```http://localhost:5601``` with your browser.
-1. Add index "filebeat-*"
-1. You can see the fields from the logs.
-
-![kibana-screenshot](pic/kibana-screenshot.png)
+- Arquivos de log no formato log.json armazenados no diretório configurado como input no Filebeat
