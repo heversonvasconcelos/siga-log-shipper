@@ -3,7 +3,7 @@ filebeat.inputs:
     id: siga-sigaex-user-request-track
     enabled: true
     paths:
-      - ${LOGDIR}"
+      - ${LOGDIR}/*.log.json
     parsers:
       - ndjson:
           keys_under_root: true
@@ -36,7 +36,8 @@ setup.ilm.rollover_alias: siga-sigaex-user-request-track-%{[agent.version]}
 setup.template.name: siga-sigaex-user-request-track
 setup.template.pattern: siga-sigaex-user-request-track-%{[agent.version]}
 
-output.elasticsearch:
-  host: elasticsearch
+setup.kibana.host: kibana
 
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
   index: "siga-sigaex-user-request-track"
