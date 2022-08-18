@@ -3,23 +3,15 @@ filebeat.inputs:
     id: siga-sigaex-user-request-track
     enabled: true
     paths:
-      - ${LOGDIR}/*.log.json
+      - /var/log/siga/sigaex/*.log.json
     parsers:
       - ndjson:
           keys_under_root: true
           overwrite_keys: true
           add_error_key: true
           expand_keys: true
-
-filebeat.config:
-  modules:
-    path: ${path.config}/modules.d/*.yml
-    reload.enabled: false
-
-filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
+    close_removed: true
+    close_renamed: true
 
 processors:
   - timestamp:
@@ -28,16 +20,21 @@ processors:
         - UNIX_MS
         - UNIX
 
-setup.template.overwrite: true
-setup.ilm.enabled: false
-setup.ilm.policy_name: siga-sigaex-user-request-track
-setup.ilm.rollover_alias: siga-sigaex-user-request-track-%{[agent.version]}
+setup.dashboards:
+  enabled: true
+  index: "siga-sigaex-user-request-track-*"
 
-setup.template.name: siga-sigaex-user-request-track
-setup.template.pattern: siga-sigaex-user-request-track-%{[agent.version]}
-
-setup.kibana.host: kibana
+setup.template:
+  name: siga-sigaex-user-request-track
+  pattern: siga-sigaex-user-request-track-%{[agent.version]}
+  #overwrite: true
+  settings:
+    index.number_of_shards: 1
 
 output.elasticsearch:
-  hosts: ["http://elasticsearch:9200"]
-  index: "siga-sigaex-user-request-track"
+  hosts: ["elasticsearch:9200"]
+  index: "siga-sigaex-user-request-track-%{[agent.version]}"
+  allow_older_versions: true
+
+setup.kibana:
+  host: "kibana:5601"

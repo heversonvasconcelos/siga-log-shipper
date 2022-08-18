@@ -1,4 +1,11 @@
----
+# Ref.: https://github.com/EventStore/samples/blob/main/Logging/Elastic/Filebeat/docker-compose.yml
+# map logs to disk location and share between containers
+x-eventstore-volume-logs:
+  &eventstore-volume-logs
+  type: bind
+  source: ./test/log/siga/sigaex
+  target: /var/log/siga/sigaex
+
 version: "3.7"
 
 volumes:
@@ -12,6 +19,7 @@ networks:
 
 services:
   elasticsearch:
+    container_name: elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
     hostname: elasticsearch
     environment:
@@ -30,6 +38,7 @@ services:
     networks:
       - elk
   kibana:
+    container_name: kibana
     image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
     ports:
       - 5601:5601
@@ -42,16 +51,15 @@ services:
     networks:
       - elk
   filebeat:
+    container_name: filebeat
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
     depends_on:
       - elasticsearch
       - kibana
-    environment:
-      - LOGDIR=/var/log/siga/sigaex
-    command: filebeat -e -strict.perms=false
+    entrypoint: "filebeat -e -strict.perms=false"
+    restart: unless-stopped
     volumes:
-      - log-volume:/var/log/siga/sigaex
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
-      - ./test/log/siga/sigaex/user-request-track.log.json:/var/log/siga/sigaex/user-request-track.log.json
+      - <<: *eventstore-volume-logs
     networks:
       - elk
