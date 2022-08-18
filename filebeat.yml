@@ -3,7 +3,7 @@ filebeat.inputs:
     id: siga-sigaex-user-request-track
     enabled: true
     paths:
-      - ${SIGA_LOGS_JSON_PATH}"
+      - ${LOGDIR}"
     parsers:
       - ndjson:
           keys_under_root: true
