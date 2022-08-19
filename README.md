@@ -2,9 +2,11 @@
 
 ## Referências
 
+- https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-reference-yml.html
 - https://event-driven.io/en/tricks_on_how_to_set_up_related_docker_images/
 - https://github.com/EventStore/samples
 - https://www.elastic.co/guide/en/beats/filebeat/8.3/_step_2_exclude_all_processed_files.html
+- https://logz.io/blog/logging-java-elk-stack/
 
 ## Fluxo
 

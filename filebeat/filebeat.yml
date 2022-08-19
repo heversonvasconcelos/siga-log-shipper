@@ -4,25 +4,20 @@ filebeat.inputs:
     enabled: true
     paths:
       - /var/log/siga/sigaex/*.log.json
+    encoding: utf-8
+    prospector.scanner.check_interval: 10s
+    close_removed: true
+    close_renamed: true
     parsers:
       - ndjson:
           keys_under_root: true
           overwrite_keys: true
           add_error_key: true
           expand_keys: true
-    close_removed: true
-    close_renamed: true
-
+    
 filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
-
-processors:
-  - timestamp:
-      field: json.timeMillis
-      layouts:
-        - UNIX_MS
-        - UNIX
 
 setup.dashboards:
   enabled: true
@@ -30,14 +25,14 @@ setup.dashboards:
 
 setup.template:
   name: siga-sigaex-user-request-track
-  pattern: siga-sigaex-user-request-track-%{[agent.version]}
+  pattern: siga-sigaex-user-request-track-%{+yyyy.MM}
   #overwrite: true
   settings:
     index.number_of_shards: 1
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
-  index: "siga-sigaex-user-request-track-%{[agent.version]}"
+  index: "siga-sigaex-user-request-track-%{+yyyy.MM}"
   allow_older_versions: true
 
 setup.kibana:

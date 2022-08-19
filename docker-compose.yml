@@ -14,7 +14,7 @@ volumes:
   log-volume:
     driver: local
 networks:
-  elk:
+  elk_network:
     driver: bridge
 
 services:
@@ -36,16 +36,16 @@ services:
       - 9200:9200
       - 9300:9300
     networks:
-      - elk
+      - elk_network
     healthcheck:
-            test:
-                [
-                "CMD-SHELL",
-                "curl --fail http://localhost:9200 || exit 1",
-                ]
-            interval: 10s
-            timeout: 10s
-            retries: 120
+      test:
+          [
+          "CMD-SHELL",
+          "curl --fail http://localhost:9200 || exit 1",
+          ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
@@ -58,16 +58,25 @@ services:
     volumes:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,z
     networks:
-      - elk
+      - elk_network
     healthcheck:
-            test:
-                [
-                "CMD-SHELL",
-                "curl --fail http://localhost:5601 || exit 1",
-                ]
-            interval: 10s
-            timeout: 10s
-            retries: 120
+      test:
+          [
+          "CMD-SHELL",
+          "curl --fail http://localhost:5601 || exit 1",
+          ]
+      interval: 10s
+      timeout: 10s
+      retries: 120
+  initializer:
+    container_name: curl
+    image: curlimages/curl
+    restart: on-failure
+    depends_on:
+        - elasticsearch
+    networks:
+        - elk_network
+    command: ["sh","-c","sleep 1 && curl  --fail -X POST 'elasticsearch:9200/_aliases' -H 'kbn-xsrf: true' -H 'Content-Type: application/json' -d'{\"actions\":[{\"add\":{\"index\":\"siga-sigaex-user-request-track-*\",\"alias\":\"siga-sigaex-user-request-track\"}}]}' || exit 1" ]
   filebeat:
     container_name: filebeat
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
@@ -80,4 +89,4 @@ services:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
       - <<: *eventstore-volume-logs
     networks:
-      - elk
+      - elk_network

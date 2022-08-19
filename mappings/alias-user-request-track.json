@@ -1,0 +1,10 @@
+{
+    "actions": [
+        {
+            "add": {
+                "index": "siga-sigaex-user-request-track-*",
+                "alias": "siga-sigaex-user-request-track"
+            }
+        }
+    ]
+}
