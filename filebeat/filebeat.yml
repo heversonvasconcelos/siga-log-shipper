@@ -13,6 +13,10 @@ filebeat.inputs:
     close_removed: true
     close_renamed: true
 
+filebeat.config.modules:
+  path: ${path.config}/modules.d/*.yml
+  reload.enabled: false
+
 processors:
   - timestamp:
       field: json.timeMillis

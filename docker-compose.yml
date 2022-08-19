@@ -37,6 +37,15 @@ services:
       - 9300:9300
     networks:
       - elk
+    healthcheck:
+            test:
+                [
+                "CMD-SHELL",
+                "curl --fail http://localhost:9200 || exit 1",
+                ]
+            interval: 10s
+            timeout: 10s
+            retries: 120
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
@@ -50,6 +59,15 @@ services:
       - ./kibana/config/kibana.yml:/usr/share/kibana/config/kibana.yml:ro,z
     networks:
       - elk
+    healthcheck:
+            test:
+                [
+                "CMD-SHELL",
+                "curl --fail http://localhost:5601 || exit 1",
+                ]
+            interval: 10s
+            timeout: 10s
+            retries: 120
   filebeat:
     container_name: filebeat
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
