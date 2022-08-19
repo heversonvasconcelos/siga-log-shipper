@@ -77,8 +77,8 @@ services:
     networks:
       - elk_network
     volumes:
-      - ./mappings/alias-user-request-track.json:/tmp/mappings/alias-user-request-track.json
-    command: ["sh","-c","sleep 1 && curl --fail -X POST 'elasticsearch:9200/_aliases' -H 'Content-Type: application/json' --data-binary @/tmp/mappings/alias-user-request-track.json || exit 1" ]
+      - ./mappings/index-user-request-track.mapping.json:/tmp/mappings/index-user-request-track.mapping.json
+    command: ["sh","-c","sleep 1 && curl --fail -X POST 'elasticsearch:9200/_index_template/siga-sigaex-user-request-track-template' -H 'Content-Type: application/json' -d @/tmp/mappings/index-user-request-track.mapping.json || exit 1" ]
   filebeat:
     container_name: filebeat
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}

@@ -10,25 +10,27 @@ filebeat.inputs:
     close_renamed: true
     parsers:
       - ndjson:
-          keys_under_root: true
-          overwrite_keys: true
-          add_error_key: true
-          expand_keys: true
+        keys_under_root: true
+        overwrite_keys: true
+        add_error_key: true
+        expand_keys: true
     
 filebeat.config.modules:
   path: ${path.config}/modules.d/*.yml
   reload.enabled: false
 
-setup.dashboards:
-  enabled: true
-  index: "siga-sigaex-user-request-track-*"
+#setup.dashboards:
+#  enabled: true
+#  index: "siga-sigaex-user-request-track-*"
 
 setup.template:
   name: siga-sigaex-user-request-track
+  setup.template.fields: fields.yml
   pattern: siga-sigaex-user-request-track-%{+yyyy.MM}
-  #overwrite: true
+  overwrite: false
+  enabled: false
   settings:
-    index.number_of_shards: 1
+    index.number_of_shards: 2
 
 output.elasticsearch:
   hosts: ["elasticsearch:9200"]
