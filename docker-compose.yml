@@ -89,6 +89,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
+      - ./filebeat/inputs/siga-sigaex-user-request-track.yml:/usr/share/filebeat/inputs.d/siga-sigaex-user-request-track.yml:ro,z
       - <<: *eventstore-volume-logs
     networks:
       - elk_network
