@@ -1,18 +1,15 @@
 filebeat.config.inputs:
-  path: ${path.config}/inputs.d/*.yml
+  enabled: true
+  path: inputs.d/*.yml
   reload.enabled: false
     
-filebeat.config.modules:
-  path: ${path.config}/modules.d/*.yml
-  reload.enabled: false
-
-#setup.dashboards:
-#  enabled: true
-#  index: "siga-sigaex-user-request-track-*"
+setup.dashboards:
+ enabled: true
+ index: "siga-sigaex-user-request-track-*"
 
 setup.template:
   name: siga-sigaex-user-request-track
-  setup.template.fields: fields.yml
+  setup.template.fields: /usr/share/filebeat/fields.yml
   pattern: siga-sigaex-user-request-track-%{+yyyy.MM}
   overwrite: false
   enabled: false

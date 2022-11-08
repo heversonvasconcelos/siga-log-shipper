@@ -1,6 +1,5 @@
 - type: filestream
-  id: siga-sigaex-user-request-track
-  enabled: true
+  id: siga-sigaex-user-request-track-logs
   paths:
     - /var/log/siga/sigaex/*.log.json
   encoding: utf-8

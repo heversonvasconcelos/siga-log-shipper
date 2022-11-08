@@ -6,7 +6,7 @@ x-eventstore-volume-logs:
   source: ./test/log/siga/sigaex
   target: /var/log/siga/sigaex
 
-version: "3.7"
+version: "2.4"
 
 volumes:
   elasticsearch-volume:
@@ -52,7 +52,8 @@ services:
     ports:
       - 5601:5601
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy    
     environment:
       - TZ=America/Sao_Paulo
     volumes:
@@ -73,22 +74,26 @@ services:
     image: curlimages/curl
     restart: on-failure
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks:
       - elk_network
     volumes:
       - ./mappings/index-user-request-track.mapping.json:/tmp/mappings/index-user-request-track.mapping.json
-    command: ["sh","-c","sleep 1 && curl --fail -X POST 'elasticsearch:9200/_index_template/siga-sigaex-user-request-track-template' -H 'Content-Type: application/json' -d @/tmp/mappings/index-user-request-track.mapping.json || exit 1" ]
+    command: ["sh","-c","sleep 1 && curl --fail -X POST '${ELASTICSEARCH_URL}/_index_template/siga-sigaex-user-request-track-template' -H 'Content-Type: application/json' -d @/tmp/mappings/index-user-request-track.mapping.json || exit 1" ]
   filebeat:
     container_name: filebeat
     image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
     depends_on:
-      - elasticsearch
-      - kibana
+      elasticsearch:
+        condition: service_healthy    
+      kibana:
+        condition: service_healthy    
     entrypoint: "filebeat -e -strict.perms=false"
     restart: unless-stopped
     volumes:
       - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
+      - ./filebeat/fields.yml:/usr/share/filebeat/fields.yml:ro,z
       - ./filebeat/inputs/siga-sigaex-user-request-track.yml:/usr/share/filebeat/inputs.d/siga-sigaex-user-request-track.yml:ro,z
       - <<: *eventstore-volume-logs
     networks:
