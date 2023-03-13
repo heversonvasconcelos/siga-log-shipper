@@ -13,6 +13,8 @@ volumes:
     driver: local
   log-volume:
     driver: local
+  data:
+    driver: local  
 networks:
   elk_network:
     driver: bridge
@@ -23,11 +25,14 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_VERSION}
     hostname: elasticsearch
     environment:
-      - TZ=America/Sao_Paulo
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      CONFIG_DIR: ${ELASTIC_DIR}/config
+      ELASTIC_USERNAME: ${ELASTIC_USERNAME}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ES_JAVA_OPTS: -Xmx${ELASTICSEARCH_HEAP} -Xms${ELASTICSEARCH_HEAP}
+      TZ: America/Sao_Paulo
     volumes:
-      - ./elasticsearch/config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml:ro,z
-      - elasticsearch-volume:/usr/share/elasticsearch/data:z
+      - data:${ELASTIC_DIR}/data
+      - ./elasticsearch/config/elasticsearch.yml:${ELASTIC_DIR}/config/elasticsearch.yml:ro
     ulimits:
       memlock:
         soft: -1
@@ -38,14 +43,33 @@ services:
     networks:
       - elk_network
     healthcheck:
-      test:
-          [
-          "CMD-SHELL",
-          "curl --fail http://localhost:9200 || exit 1",
-          ]
+      test: curl -s https://elasticsearch:9200 >/dev/null; if [[ $$? == 52 ]]; then echo 0; else echo 1; fi
       interval: 10s
       timeout: 10s
       retries: 120
+  enterprisesearch:
+    container_name: enterprisesearch
+    image: docker.elastic.co/enterprise-search/enterprise-search:${ELK_VERSION}
+    ports:
+      - 3002:3002
+    depends_on:
+      elasticsearch:
+        condition: service_healthy    
+    environment:
+      - TZ=America/Sao_Paulo
+    volumes:
+      - ./enterprisesearch/config/enterprise-search.yml:/usr/share/enterprise-search/config/enterprise-search.yml:ro,z
+    networks:
+      - elk_network
+    healthcheck:
+      test:
+          [
+          "CMD-SHELL",
+          "curl --fail http://localhost:3002 || exit 1",
+          ]
+      interval: 10s
+      timeout: 10s
+      retries: 120    
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
@@ -81,20 +105,20 @@ services:
     volumes:
       - ./mappings/index-user-request-track.mapping.json:/tmp/mappings/index-user-request-track.mapping.json
     command: ["sh","-c","sleep 1 && curl --fail -X POST '${ELASTICSEARCH_URL}/_index_template/siga-sigaex-user-request-track-template' -H 'Content-Type: application/json' -d @/tmp/mappings/index-user-request-track.mapping.json || exit 1" ]
-  filebeat:
-    container_name: filebeat
-    image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
-    depends_on:
-      elasticsearch:
-        condition: service_healthy    
-      kibana:
-        condition: service_healthy    
-    entrypoint: "filebeat -e -strict.perms=false"
-    restart: unless-stopped
-    volumes:
-      - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
-      - ./filebeat/fields.yml:/usr/share/filebeat/fields.yml:ro,z
-      - ./filebeat/inputs/siga-sigaex-user-request-track.yml:/usr/share/filebeat/inputs.d/siga-sigaex-user-request-track.yml:ro,z
-      - <<: *eventstore-volume-logs
-    networks:
-      - elk_network
+  # filebeat:
+  #   container_name: filebeat
+  #   image: docker.elastic.co/beats/filebeat:${ELK_VERSION}
+  #   depends_on:
+  #     elasticsearch:
+  #       condition: service_healthy    
+  #     kibana:
+  #       condition: service_healthy    
+  #   entrypoint: "filebeat -e -strict.perms=false"
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ./filebeat/filebeat.yml:/usr/share/filebeat/filebeat.yml:ro,z
+  #     - ./filebeat/fields.yml:/usr/share/filebeat/fields.yml:ro,z
+  #     - ./filebeat/inputs/siga-sigaex-user-request-track.yml:/usr/share/filebeat/inputs.d/siga-sigaex-user-request-track.yml:ro,z
+  #     - <<: *eventstore-volume-logs
+  #   networks:
+  #     - elk_network

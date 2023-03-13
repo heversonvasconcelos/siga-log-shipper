@@ -1,0 +1,11 @@
+#https://www.elastic.co/guide/en/enterprise-search/master/configuration.html
+
+elasticsearch.host: "https://elasticsearch:9200"
+#make your own with 'openssl rand -hex 32'
+secret_session_key: "48db75f512a3d2d1bcb4348adab0c8bf7b9ff6344d1c692a9c3b021d5efec500"
+secret_management.encryption_keys: ["d51643d40388bc528149308746d5a77953d68ceb77d7ad8abd14256aae7182b1"]
+secret_management.enforce_valid_encryption_keys: false
+ent_search.ssl.enabled: false
+ent_search.external_url: "http://localhost:3002"
+ent_search.listen_host: "0.0.0.0"
+ent_search.listen_port: 3002

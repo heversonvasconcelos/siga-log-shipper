@@ -1,7 +1,10 @@
 cluster.name: "docker-cluster"
 network.host: 0.0.0.0
 
-xpack.security.enabled: false
+xpack.security.enabled: true
+xpack.security.http.ssl.enabled: true
+xpack.security.http.ssl.key: /usr/share/elasticsearch/certificates/instance/instance.key
+xpack.security.http.ssl.certificate: /usr/share/elasticsearch/certificates/instance/instance.crt
 discovery.type: single-node
 ingest.geoip.downloader.enabled: false
 bootstrap.memory_lock: true

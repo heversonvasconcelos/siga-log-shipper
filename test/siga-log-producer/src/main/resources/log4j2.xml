@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <!-- https://logging.apache.org/log4j/2.x/manual/configuration.html#PropertySubstitution -->
+    <Properties>
+        <Property name="logdir">${env:log.dir}</Property>
+    </Properties>
+    <!-- Define custom levels before using them for filtering below. -->
+    <CustomLevels>
+        <CustomLevel name="BLAME" intLevel="450"/>
+    </CustomLevels>
+
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+        <!-- https://logging.apache.org/log4j/2.0/manual/appenders.html#RollingRandomAccessFileAppender -->
+        <RollingRandomAccessFile name="user-req-log-file"
+                                 fileName="${logdir}/sigaex/user-request-track.log"
+                                 filePattern="sigaex-user-request-track-%d{yyyy-MM-dd}-%i.log.gz"
+                                 immediateFlush="false">
+            <PatternLayout charset="UTF-8" pattern="%-5p %d %c{1.} %m [%MDC]%n"/>
+            <SizeBasedTriggeringPolicy size="100 MB"/>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingRandomAccessFile>
+        <RollingRandomAccessFile name="user-req-json-log-file"
+                                 fileName="${logdir}/sigaex/user-request-track.log.json"
+                                 filePattern="sigaex-user-request-track-%d{yyyy-MM-dd}-%i.log.gz"
+                                 immediateFlush="false">
+            <JsonTemplateLayout eventTemplateUri="classpath:EcsLayout.json"/>
+            <SizeBasedTriggeringPolicy size="100 MB"/>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingRandomAccessFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- https://logging.apache.org/log4j/2.x/manual/async.html -->
+        <AsyncLogger name="siga.UserRequestInterceptor" level="BLAME" includeLocation="false">
+            <AppenderRef ref="user-req-log-file"/>
+            <AppenderRef ref="user-req-json-log-file"/>
+        </AsyncLogger>
+
+        <Root level="ERROR" includeLocation="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+
+    </Loggers>
+
+</Configuration>
