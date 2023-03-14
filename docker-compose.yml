@@ -33,6 +33,8 @@ services:
     volumes:
       - data:${ELASTIC_DIR}/data
       - ./elasticsearch/config/elasticsearch.yml:${ELASTIC_DIR}/config/elasticsearch.yml:ro
+      - ./elasticsearch/config/certificates/instance/instance.crt:${ELASTIC_DIR}/config/certificates/instance/instance.crt:ro
+      - ./elasticsearch/config/certificates/instance/instance.key:${ELASTIC_DIR}/config/certificates/instance/instance.key:ro
     ulimits:
       memlock:
         soft: -1
@@ -47,6 +49,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
+  ########enterprisesearch
   enterprisesearch:
     container_name: enterprisesearch
     image: docker.elastic.co/enterprise-search/enterprise-search:${ELK_VERSION}
@@ -70,6 +73,7 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120    
+  ########Kibana
   kibana:
     container_name: kibana
     image: docker.elastic.co/kibana/kibana:${ELK_VERSION}
@@ -93,18 +97,20 @@ services:
       interval: 10s
       timeout: 10s
       retries: 120
-  initializer:
-    container_name: curl
-    image: curlimages/curl
-    restart: on-failure
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
-    networks:
-      - elk_network
-    volumes:
-      - ./mappings/index-user-request-track.mapping.json:/tmp/mappings/index-user-request-track.mapping.json
-    command: ["sh","-c","sleep 1 && curl --fail -X POST '${ELASTICSEARCH_URL}/_index_template/siga-sigaex-user-request-track-template' -H 'Content-Type: application/json' -d @/tmp/mappings/index-user-request-track.mapping.json || exit 1" ]
+
+  ############### initializer
+  # initializer:
+  #   container_name: curl
+  #   image: curlimages/curl
+  #   restart: on-failure
+  #   depends_on:
+  #     elasticsearch:
+  #       condition: service_healthy
+  #   networks:
+  #     - elk_network
+  #   volumes:
+  #     - ./mappings/index-user-request-track.mapping.json:/tmp/mappings/index-user-request-track.mapping.json
+  #   command: ["sh","-c","sleep 1 && curl --fail -X POST '${ELASTICSEARCH_URL}/_index_template/siga-sigaex-user-request-track-template' -H 'Content-Type: application/json' -d @/tmp/mappings/index-user-request-track.mapping.json || exit 1" ]
   # filebeat:
   #   container_name: filebeat
   #   image: docker.elastic.co/beats/filebeat:${ELK_VERSION}

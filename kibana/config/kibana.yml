@@ -7,3 +7,14 @@ enterpriseSearch.host: "http://enterprisesearch:3002"
 newsfeed.enabled: false
 telemetry.allowChangingOptInStatus: false
 telemetry.enabled: false
+xpack.fleet.agents.enabled: false
+
+server.ssl.enabled: false
+status.allowAnonymous: true
+#https://www.elastic.co/guide/en/kibana/current/settings.html#elasticsearch-ssl-verificationMode
+elasticsearch.ssl.verificationMode: "none"
+#elasticsearch.username: "elastic"
+#elasticsearch.password: "elastic"
+
+#elasticsearch.ssl.certificateAuthorities: ['C:\Users\02446632114\Development\tools\kibana-8.1.2\data\ca_1649603977650.crt']
+elasticsearch.serviceAccountToken: AAEAAWVsYXN0aWMva2liYW5hL2tpYmFuYTpOQU9UNmNBRVNjdVJJYTN5Yk9ybUVR

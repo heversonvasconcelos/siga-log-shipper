@@ -1,10 +1,20 @@
 cluster.name: "docker-cluster"
 network.host: 0.0.0.0
 
+#xpack.security.enabled: false
 xpack.security.enabled: true
 xpack.security.http.ssl.enabled: true
-xpack.security.http.ssl.key: /usr/share/elasticsearch/certificates/instance/instance.key
-xpack.security.http.ssl.certificate: /usr/share/elasticsearch/certificates/instance/instance.crt
+xpack.security.http.ssl.key: /usr/share/elasticsearch/config/certificates/instance/instance.key
+xpack.security.http.ssl.certificate: /usr/share/elasticsearch/config/certificates/instance/instance.crt
+xpack.security.authc.api_key.enabled: true
 discovery.type: single-node
 ingest.geoip.downloader.enabled: false
 bootstrap.memory_lock: true
+
+http.cors.allow-origin: "*"
+http.cors.enabled: true
+http.cors.allow-credentials: true
+http.cors.allow-methods: OPTIONS, HEAD, GET, POST, PUT, DELETE
+http.cors.allow-headers: X-Requested-With, X-Auth-Token, Content-Type, Content-Length, Authorization, Access-Control-Allow-Headers, Accept, x-elastic-client-meta
+
+action.auto_create_index: ".ent-search-*-logs-*,-.ent-search-*,+*"
